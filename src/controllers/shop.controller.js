@@ -1,4 +1,5 @@
 import Product from '../models/product.model.js';
+import Cart from '../models/cart.model.js';
 
 export const getProducts = (req, res) => {
 	Product.fetchAll((products) => {
@@ -37,16 +38,39 @@ export const getIndex = (req, res) => {
 };
 
 export const getCart = (req, res) => {
-	res.render('shop/cart', {
-		pageTitle: 'Your Cart',
-		activeCart: true,
+	Cart.getCart((cart) => {
+		Product.fetchAll((products) => {
+			const cartProducts = [];
+			for (let product of products) {
+				const cartProductData = cart.products.find((prod) => prod.id === product.id);
+				if (cartProductData) {
+					cartProducts.push({productData: product, qty: cartProductData.qty});
+				}
+			}
+			res.render('shop/cart', {
+				pageTitle: 'Your Cart',
+				activeCart: true,
+				products: cartProducts,
+				hasProducts: cartProducts.length > 0,
+			});
+		});
 	});
 };
 
 export const postCart = (req, res) => {
 	const prodId = req.body.productId;
-	console.log(prodId);
-	res.redirect('/cart');
+	Product.findById(prodId, (product) => {
+		Cart.addProduct(prodId, product.price);
+	});
+	res.redirect('/cart'); // problem
+};
+
+export const postCartDeleteProduct = (req, res) => {
+	const prodId = req.body.productId;
+	Product.findById(prodId, (product) => {
+		Cart.deleteProduct(prodId, product.price);
+		res.redirect('/cart'); // problem
+	});
 };
 
 export const getOrders = (req, res) => {
