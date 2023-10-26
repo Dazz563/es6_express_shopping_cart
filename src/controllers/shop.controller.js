@@ -1,40 +1,43 @@
 import Product from '../models/product.model.js';
 import Cart from '../models/cart.model.js';
 
-export const getProducts = (req, res) => {
-	Product.fetchAll((products) => {
+export const getProducts = async (req, res) => {
+	try {
+		let [rows, fieldData] = await Product.fetchAll();
 		res.render('shop/product-list', {
-			prods: products,
+			prods: rows,
 			pageTitle: 'All products',
-			hasProducts: products.length > 0,
+			hasProducts: rows.length > 0,
 			activeProducts: true,
 			productCSS: true,
 		});
-	});
+	} catch (err) {}
 };
 
-export const getProductById = (req, res) => {
-	const prodId = req.params.productId;
-	Product.findById(prodId, (product) => {
+export const getProductById = async (req, res) => {
+	try {
+		const prodId = req.params.productId;
+		let [product] = await Product.findById(prodId);
+		// console.log(product[0].title);
 		res.render('shop/product-detail', {
-			product: product,
-			pageTitle: product.title,
+			product: product[0],
+			pageTitle: product[0].title,
 			activeProducts: true,
 		});
-	});
-	res;
+	} catch (err) {}
 };
 
-export const getIndex = (req, res) => {
-	Product.fetchAll((products) => {
+export const getIndex = async (req, res) => {
+	try {
+		let [rows, fieldData] = await Product.fetchAll();
 		res.render('shop/index', {
-			prods: products,
+			prods: rows,
 			pageTitle: 'Shop',
-			hasProducts: products.length > 0,
+			hasProducts: rows.length > 0,
 			activeShop: true,
 			productCSS: true,
 		});
-	});
+	} catch (err) {}
 };
 
 export const getCart = (req, res) => {

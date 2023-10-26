@@ -10,11 +10,15 @@ export const getAddProduct = (req, res) => {
 	});
 };
 
-export const postAddProduct = (req, res) => {
-	const {title, imageUrl, price, description} = req.body;
-	const product = new Product(null, title, imageUrl, description, price);
-	product.save();
-	res.redirect('/');
+export const postAddProduct = async (req, res) => {
+	try {
+		const {title, imageUrl, price, description} = req.body;
+		const product = new Product(null, title, imageUrl, description, price);
+		let result = await product.save();
+		res.redirect('/');
+	} catch (err) {
+		console.log(err);
+	}
 };
 
 export const getEditProduct = (req, res) => {
